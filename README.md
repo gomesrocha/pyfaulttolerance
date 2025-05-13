@@ -1,5 +1,6 @@
 # PyFaultTolerance
 
-![Testes](https://github.com/fabiorocha/pyfaulttolerance/actions/workflows/test.yml/badge.svg)
+[![codecov](https://app.codecov.io/gh/gomesrocha/pyfaulttolerance/branch/main/graph/badge.svg)](https://app.codecov.io/gh/gomesrocha/pyfaulttolerance)
+
 
 Microframework Python de tolerância a falhas inspirado no SmallRye Fault Tolerance
