@@ -3,6 +3,9 @@ import time
 import functools
 import asyncio
 from enum import Enum
+from app.exceptions import CircuitBreakerOpenError
+import logging
+logger = logging.getLogger(__name__)
 
 
 class CircuitState(Enum):
@@ -41,7 +44,8 @@ class CircuitBreaker:
             async def async_wrapper(*args, **kwargs):
                 state = self._check_state()
                 if state == CircuitState.OPEN:
-                    raise Exception("Circuit breaker is OPEN (async)")
+                    logger.error(f"[CircuitBreaker] Open circuit in '{func.__name__}'")
+                    raise CircuitBreakerOpenError(func.__name__)
 
                 try:
                     result = await func(*args, **kwargs)
@@ -57,7 +61,8 @@ class CircuitBreaker:
             def sync_wrapper(*args, **kwargs):
                 state = self._check_state()
                 if state == CircuitState.OPEN:
-                    raise Exception("Circuit breaker is OPEN")
+                    logger.error(f"[CircuitBreaker] Open circuit in '{func.__name__}'")
+                    raise CircuitBreakerOpenError(func.__name__)
 
                 try:
                     result = func(*args, **kwargs)

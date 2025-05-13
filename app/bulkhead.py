@@ -1,5 +1,9 @@
 import asyncio
 import functools
+from app.exceptions import BulkheadRejectionError
+import logging
+logger = logging.getLogger(__name__)
+
 
 def bulkhead(max_concurrent_calls=5):
     semaphore = asyncio.Semaphore(max_concurrent_calls)
@@ -8,14 +12,14 @@ def bulkhead(max_concurrent_calls=5):
         if asyncio.iscoroutinefunction(func):
             @functools.wraps(func)
             async def async_wrapper(*args, **kwargs):
-                # Tenta adquirir sem esperar — se falhar, lança erro
+
                 acquired = semaphore.locked() or not semaphore._value
                 if acquired:
-                    raise RuntimeError("another call is already in progress")
-
+                    logger.warning(f"[Bulkhead] Concurrent execution rejected in '{func.__name__}'")
+                    raise BulkheadRejectionError(func.__name__)
                 async with semaphore:
                     return await func(*args, **kwargs)
             return async_wrapper
         else:
-            raise RuntimeError("bulkhead only supports async functions.")
+            raise RuntimeError("Bulkhead only supports async functions.")
     return decorator

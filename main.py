@@ -4,6 +4,12 @@ from app.timeout_async import timeout_async
 from app.fallback import fallback
 from app.bulkhead import bulkhead
 from app.circuit_breaker import CircuitBreaker
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+)
 
 # Fallback de exemplo
 async def fallback_example():

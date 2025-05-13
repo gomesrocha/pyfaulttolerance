@@ -1,6 +1,7 @@
 import pytest
-from app.bulkhead import bulkhead
 import asyncio
+from app.bulkhead import bulkhead
+from app.exceptions import BulkheadRejectionError
 
 @bulkhead(max_concurrent_calls=1)
 async def tarefa_lenta(index):
@@ -9,8 +10,7 @@ async def tarefa_lenta(index):
 
 def test_bulkhead_concorrente():
     async def executar():
-        # A segunda chamada simultânea deve causar erro
         await asyncio.gather(tarefa_lenta(1), tarefa_lenta(2))
 
-    with pytest.raises(RuntimeError, match="another call is already in progress"):
+    with pytest.raises(BulkheadRejectionError, match="competition limits"):
         asyncio.run(executar())
