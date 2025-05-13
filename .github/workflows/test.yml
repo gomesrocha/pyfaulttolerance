@@ -28,5 +28,5 @@ jobs:
 
       - name: Executa os testes
         run: |
-          uv run --system coverage run --source=app -m pytest
-          uv run --system coverage report -m
+          uv run coverage run --source=app -m pytest
+          uv run coverage report -m
