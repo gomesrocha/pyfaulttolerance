@@ -1,9 +1,9 @@
 import asyncio
-from app.retry_async import retry_async
-from app.timeout_async import timeout_async
-from app.fallback import fallback
-from app.bulkhead import bulkhead
-from app.circuit_breaker import CircuitBreaker
+from pyfaulttolerance.retry_async import retry_async
+from pyfaulttolerance.timeout_async import timeout_async
+from pyfaulttolerance.fallback import fallback
+from pyfaulttolerance.bulkhead import bulkhead
+from pyfaulttolerance.circuit_breaker import CircuitBreaker
 import logging
 
 logging.basicConfig(

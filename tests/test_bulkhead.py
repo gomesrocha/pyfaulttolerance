@@ -1,7 +1,7 @@
 import pytest
 import asyncio
-from app.bulkhead import bulkhead
-from app.exceptions import BulkheadRejectionError
+from pyfaulttolerance.bulkhead import bulkhead
+from pyfaulttolerance.exceptions import BulkheadRejectionError
 
 @bulkhead(max_concurrent_calls=1)
 async def tarefa_lenta(index):

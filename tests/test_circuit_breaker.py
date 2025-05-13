@@ -1,7 +1,7 @@
 import pytest
 import asyncio
-from app.circuit_breaker import CircuitBreaker
-from app.exceptions import CircuitBreakerOpenError
+from pyfaulttolerance.circuit_breaker import CircuitBreaker
+from pyfaulttolerance.exceptions import CircuitBreakerOpenError
 
 cb = CircuitBreaker(failure_threshold=2, recovery_timeout=10)
 

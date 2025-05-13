@@ -1,6 +1,6 @@
 import pytest
-from app.retry_async import retry_async
-from app.exceptions import RetryExceededError
+from pyfaulttolerance.retry_async import retry_async
+from pyfaulttolerance.exceptions import RetryExceededError
 import asyncio
 
 @retry_async(max_attempts=3, delay=0)

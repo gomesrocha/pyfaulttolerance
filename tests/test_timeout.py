@@ -1,6 +1,6 @@
 import pytest
-from app.timeout_async import timeout_async
-from app.exceptions import TimeoutError
+from pyfaulttolerance.timeout_async import timeout_async
+from pyfaulttolerance.exceptions import TimeoutError
 import asyncio
 
 @timeout_async(seconds=1)

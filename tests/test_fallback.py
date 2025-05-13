@@ -1,4 +1,4 @@
-from app.fallback import fallback
+from pyfaulttolerance.fallback import fallback
 import asyncio
 
 # Função de fallback que será usada quando a principal falhar
@@ -8,7 +8,7 @@ async def fallback_func():
 # Função principal que sempre falha
 @fallback(fallback_func)
 async def always_fail():
-    raise Exception("Erro simulado")
+    raise Exception("Simulated error")
 
 def test_fallback():
     result = asyncio.run(always_fail())
