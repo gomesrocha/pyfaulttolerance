@@ -1,6 +1,6 @@
 [project]
 name = "pyfaulttolerance"
-version = "0.1.1"
+version = "0.1.2"
 description = "Microframework de tolerância a falhas inspirado no SmallRye Fault Tolerance"
 authors = [{ name = "Fabio Gomes Rocha" }]
 readme = "README.md"
