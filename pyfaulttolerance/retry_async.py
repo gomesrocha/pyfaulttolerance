@@ -1,8 +1,8 @@
 import asyncio
 import functools
 import logging
-from app.exceptions import RetryExceededError
-from app.exceptions import CircuitBreakerOpenError
+from pyfaulttolerance.exceptions import RetryExceededError
+from pyfaulttolerance.exceptions import CircuitBreakerOpenError
 
 
 logger = logging.getLogger(__name__)
