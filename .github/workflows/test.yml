@@ -1,0 +1,33 @@
+name: Testes CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Instala Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Instala uv
+        run: |
+          pip install uv
+
+      - name: Instala dependências
+        run: |
+          uv pip install pytest pytest-asyncio coverage
+
+      - name: Executa os testes
+        run: |
+          uv run coverage run --source=app -m pytest
+          uv run coverage report -m
