@@ -20,14 +20,13 @@ jobs:
           python-version: '3.11'
 
       - name: Instala uv
-        run: |
-          pip install uv
+        run: pip install uv
 
       - name: Instala dependências
         run: |
-          uv pip install pytest pytest-asyncio coverage
+          uv pip install --system pytest pytest-asyncio coverage
 
       - name: Executa os testes
         run: |
-          uv run coverage run --source=app -m pytest
-          uv run coverage report -m
+          uv run --system coverage run --source=app -m pytest
+          uv run --system coverage report -m
