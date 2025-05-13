@@ -3,7 +3,7 @@ import time
 import functools
 import asyncio
 from enum import Enum
-from app.exceptions import CircuitBreakerOpenError
+from pyfaulttolerance.exceptions import CircuitBreakerOpenError
 import logging
 logger = logging.getLogger(__name__)
 

@@ -1,4 +1,3 @@
-# app/timeout.py
 import signal
 import functools
 

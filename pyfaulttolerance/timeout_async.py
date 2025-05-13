@@ -1,7 +1,7 @@
 import asyncio
 import functools
 import logging
-from app.exceptions import TimeoutError
+from pyfaulttolerance.exceptions import TimeoutError
 
 logger = logging.getLogger(__name__)
 

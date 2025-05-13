@@ -1,6 +1,6 @@
 import asyncio
 import functools
-from app.exceptions import BulkheadRejectionError
+from pyfaulttolerance.exceptions import BulkheadRejectionError
 import logging
 logger = logging.getLogger(__name__)
 
