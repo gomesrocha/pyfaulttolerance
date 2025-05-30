@@ -91,44 +91,43 @@ def test_bulkhead_with_zero_max_concurrent_calls():
     with pytest.raises(BulkheadRejectionError, match=r"\[BulkheadRejection\] Connection rejected due to competition limits in 'task_with_zero_concurrency'\."):
         asyncio.run(run_task())
 
-# Test that non-async functions can also be decorated (though bulkhead is typically for async)
-# This depends on the bulkhead implementation; if it expects awaitables, this might behave differently.
-# Assuming it's primarily for async and might either error or work "vacuously" for sync.
 def test_bulkhead_on_sync_function_rejection():
-    # This test's behavior depends heavily on how @bulkhead handles non-async functions.
-    # If it acquires a semaphore and releases it, it might work.
-    # If it expects an awaitable, it might fail differently or not apply the limit as expected.
-    # For this test, let's define it and see. If it fails, it indicates an area to clarify in docs or code.
+    # This test confirms that applying @bulkhead to a sync function raises a RuntimeError.
     
-    # Re-define a sync version for this test
-    @bulkhead(max_concurrent_calls=1)
-    def sync_task_for_bulkhead(index):
-        # time.sleep(0.1) # Not async, so can't use asyncio.sleep
-        # If this were a real sync blocking call, the test setup would be more complex
-        # to simulate concurrent calls (e.g. threading).
-        # For simplicity, we'll just call it sequentially and test if rejection happens
-        # if we could somehow force concurrency.
-        # This test is more conceptual given the current structure.
-        # Let's assume it behaves as expected for a single call.
-        return f"Sync task {index} done"
+    with pytest.raises(RuntimeError, match="Bulkhead only supports async functions."):
+        @bulkhead(max_concurrent_calls=1)
+        def sync_task_for_bulkhead(index):
+            # This code will not be executed because the decorator raises an error.
+            return f"Sync task {index} done" # pragma: no cover
 
-    # First call should succeed
-    assert sync_task_for_bulkhead(1) == "Sync task 1 done"
+        # Attempting to call the function is not strictly necessary to test the decorator's behavior
+        # on sync functions, as the error occurs at decoration time if the decorator
+        # is structured to immediately wrap or analyze the function.
+        # However, if the check is within the wrapper, a call would be needed.
+        # Given the current bulkhead code, the RuntimeError is raised when the decorator is applied.
+        # For robustness, we can define and then attempt a call, though the error
+        # should ideally occur when the decorator is processed.
+        # Let's refine to ensure the test checks the point of failure accurately.
+        # The error is raised when `decorator(func)` is executed.
+        # pytest.raises should ideally wrap the point where the exception is expected.
 
-    # To test rejection, we'd need true concurrency.
-    # Pytest doesn't easily do this for sync functions without threading.
-    # The decorator might not even be intended for sync functions.
-    # For now, this part of the test is more of a placeholder for future exploration
-    # or if the library explicitly states support for sync functions.
-    # If @bulkhead is async-only, attempting to apply it to a sync function
-    # might result in errors or unexpected behavior at decoration or call time.
+        # If the decorator raises upon application (which it does):
+        # The definition itself, when decorated, will trigger the error.
+        pass # The decorated function definition within the context manager is enough.
 
-    # Let's assume for now the decorator *could* be applied and test a scenario
-    # where we try to "fake" over-subscription if its internal counter is naive.
-    # This is hard to test properly without threads for sync functions.
-    # We will skip the rejection part for sync functions for now as it's not straightforward
-    # with asyncio-focused tools and the current problem scope.
-    pass # Placeholder for more complex sync testing if needed.
+    # To be absolutely certain and cover cases where the check might be deferred
+    # to the first call (though not the case here), one might write:
+    #
+    # @bulkhead(max_concurrent_calls=1)
+    # def sync_task_for_bulkhead_callable(index):
+    #     return f"Sync task {index} done"
+    #
+    # with pytest.raises(RuntimeError, match="Bulkhead only supports async functions."):
+    #     sync_task_for_bulkhead_callable(1)
+    #
+    # However, the current code for bulkhead.py raises the error when the decorator
+    # is applied, so the first form is more direct.
+    # The test log shows the error happens at `tests/test_bulkhead.py:104`, which is the `@bulkhead` line.
 
 
 # Test to ensure that if tasks complete quickly, the slots are freed up.

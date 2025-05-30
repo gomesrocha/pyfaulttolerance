@@ -22,6 +22,10 @@ class CircuitBreaker:
         self.last_failure_time = None
         self.state = CircuitState.CLOSED
 
+    @property
+    def current_state(self):
+        return self.state.value # Access the string value of the enum
+
     def _check_state(self):
         if self.state == CircuitState.OPEN:
             if (time.time() - self.last_failure_time) >= self.recovery_timeout:
