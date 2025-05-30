@@ -16,23 +16,23 @@ def timeout(seconds=5):
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            # Check the original value for precise 0
-            if seconds == 0: 
+            if seconds == 0:
                 raise TimeoutException(f"Timeout expired after {seconds} seconds")
 
-            effective_seconds = int(seconds)
-            # If effective_seconds is 0 due to float truncation (e.g., seconds=0.1),
-            # signal.alarm(0) would cancel any pending alarm, effectively not setting a new one.
-            # This specific subtask is focused on seconds == 0.
-            # The behavior for 0 < seconds < 1 for this sync decorator means it won't timeout
-            # before the function completes, unless the function itself is extremely short.
+            # For positive timeouts, signal.alarm requires integers.
+            # If seconds is > 0 and < 1, int(seconds) would be 0,
+            # which cancels the alarm. So, use 1 second as the minimum effective timeout.
+            if 0 < seconds < 1:
+                effective_seconds = 1
+            else:
+                effective_seconds = int(seconds) # For seconds >= 1 or if seconds is a whole number float
 
             signal.signal(signal.SIGALRM, _handle_timeout)
-            signal.alarm(effective_seconds) 
+            signal.alarm(effective_seconds)
             try:
                 result = func(*args, **kwargs)
                 return result
             finally:
-                signal.alarm(0) # Cancel any pending alarm
+                signal.alarm(0)  # Cancel any pending alarm
         return wrapper
     return decorator

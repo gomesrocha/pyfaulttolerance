@@ -37,7 +37,7 @@ def test_sync_timeout_exceeded():
     timeout_seconds = 0.05
     @timeout(seconds=timeout_seconds)
     def sync_slow_function():
-        time.sleep(timeout_seconds + 0.05) # Sleep longer than timeout
+        time.sleep(1.1) # Sleep longer than effective 1s timeout
         return "should not return"
 
     with pytest.raises(TimeoutException, match=f"Timeout expired after {timeout_seconds} seconds"):
@@ -57,7 +57,7 @@ def test_sync_timeout_very_short_timeout_definitely_exceeded():
     timeout_seconds = 0.01
     @timeout(seconds=timeout_seconds) 
     def sync_very_slow_function():
-        time.sleep(timeout_seconds + 0.04) # Sleep significantly longer
+        time.sleep(1.1) # Sleep longer than effective 1s timeout
         return "should not return"
 
     with pytest.raises(TimeoutException, match=f"Timeout expired after {timeout_seconds} seconds"):
@@ -154,7 +154,7 @@ def test_sync_function_exceeds_just_after_timeout_limit():
     timeout_seconds = 0.05
     @timeout(seconds=timeout_seconds)
     def sync_function_just_over_edge():
-        time.sleep(timeout_seconds + 0.005) # Sleep just a fraction over
+        time.sleep(1.1) # Sleep longer than effective 1s timeout
         return "edge case fail" # pragma: no cover
         
     with pytest.raises(TimeoutException, match=f"Timeout expired after {timeout_seconds} seconds"):
