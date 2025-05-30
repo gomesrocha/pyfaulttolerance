@@ -40,12 +40,12 @@ def test_async_closed_to_open_transition_and_error_message():
     # First failure
     with pytest.raises(ValueError, match="Simulated failure"):
         asyncio.run(protected_async_call())
-    assert cb_test.current_state == "CLOSED", "CB should still be CLOSED after 1st failure"
+    assert cb_test.current_state == "closed", "CB should still be CLOSED after 1st failure"
 
     # Second failure (reaches threshold)
     with pytest.raises(ValueError, match="Simulated failure"):
         asyncio.run(protected_async_call())
-    assert cb_test.current_state == "OPEN", "CB should be OPEN after 2nd failure"
+    assert cb_test.current_state == "open", "CB should be OPEN after 2nd failure"
     
     # Third call - should raise CircuitBreakerOpenError
     with pytest.raises(CircuitBreakerOpenError, match=r"\[CircuitBreakerOpen\] Open circuit for function 'async_call'\."):
@@ -63,7 +63,7 @@ def test_async_open_to_half_open_and_half_open_to_closed():
     mock_service.set_should_fail(True)
     with pytest.raises(ValueError, match="Simulated failure"):
         asyncio.run(protected_async_call())
-    assert cb_test.current_state == "OPEN"
+    assert cb_test.current_state == "open"
 
     # 2. OPEN -> HALF_OPEN
     time.sleep(0.06) # Wait for recovery_timeout
@@ -73,7 +73,7 @@ def test_async_open_to_half_open_and_half_open_to_closed():
     # This call is in HALF_OPEN state
     result = asyncio.run(protected_async_call())
     assert result == "success"
-    assert cb_test.current_state == "CLOSED", "CB should be CLOSED after success in HALF_OPEN"
+    assert cb_test.current_state == "closed", "CB should be CLOSED after success in HALF_OPEN"
     assert cb_test.failure_count == 0, "Failure count should reset after closing from HALF_OPEN"
     assert mock_service.call_count == 2 # Original function was called twice
 
@@ -86,7 +86,7 @@ def test_async_half_open_to_open():
     mock_service.set_should_fail(True)
     with pytest.raises(ValueError):
         asyncio.run(protected_async_call())
-    assert cb_test.current_state == "OPEN"
+    assert cb_test.current_state == "open"
 
     # 2. OPEN -> HALF_OPEN (implicitly by waiting)
     time.sleep(0.06) 
@@ -95,7 +95,7 @@ def test_async_half_open_to_open():
     # mock_service.set_should_fail(True) # Already true
     with pytest.raises(ValueError, match="Simulated failure"): # Call in HALF_OPEN fails
         asyncio.run(protected_async_call())
-    assert cb_test.current_state == "OPEN", "CB should be OPEN after failure in HALF_OPEN"
+    assert cb_test.current_state == "open", "CB should be OPEN after failure in HALF_OPEN"
     assert mock_service.call_count == 2 # Original function called twice
 
     # Verify it's truly OPEN again
@@ -115,14 +115,14 @@ def test_async_successful_calls_in_closed_state_resets_failures():
     with pytest.raises(ValueError):
         asyncio.run(protected_async_call())
     assert cb_test.failure_count == 2
-    assert cb_test.current_state == "CLOSED"
+    assert cb_test.current_state == "closed"
 
     # A successful call should reset failure count
     mock_service.set_should_fail(False)
     result = asyncio.run(protected_async_call())
     assert result == "success"
     assert cb_test.failure_count == 0, "Failure count should reset after a successful call in CLOSED state"
-    assert cb_test.current_state == "CLOSED"
+    assert cb_test.current_state == "closed"
     assert mock_service.call_count == 3
 
 def test_async_call_succeeds_when_closed_no_prior_failures():
@@ -133,7 +133,7 @@ def test_async_call_succeeds_when_closed_no_prior_failures():
     mock_service.set_should_fail(False)
     result = asyncio.run(protected_async_call())
     assert result == "success"
-    assert cb_test.current_state == "CLOSED"
+    assert cb_test.current_state == "closed"
     assert cb_test.failure_count == 0
     assert mock_service.call_count == 1
 
@@ -147,7 +147,7 @@ def test_sync_closed_to_open():
     mock_service.set_should_fail(True)
     with pytest.raises(ValueError, match="Simulated failure"):
         protected_sync_call()
-    assert cb_test.current_state == "OPEN"
+    assert cb_test.current_state == "open"
     
     with pytest.raises(CircuitBreakerOpenError, match=r"\[CircuitBreakerOpen\] Open circuit for function 'sync_call'\."):
         protected_sync_call()
@@ -167,7 +167,7 @@ def test_sync_open_to_half_open_to_closed():
     mock_service.set_should_fail(False) # Next call in HALF_OPEN will succeed
     result = protected_sync_call()
     assert result == "success"
-    assert cb_test.current_state == "CLOSED", "CB should be CLOSED after success in HALF_OPEN"
+    assert cb_test.current_state == "closed", "CB should be CLOSED after success in HALF_OPEN"
     assert cb_test.failure_count == 0
     assert mock_service.call_count == 2
 
@@ -185,7 +185,7 @@ def test_sync_half_open_to_open():
     # mock_service.set_should_fail(True) # Still true
     with pytest.raises(ValueError, match="Simulated failure"): # Call in HALF_OPEN fails
         protected_sync_call()
-    assert cb_test.current_state == "OPEN", "CB should be OPEN after failure in HALF_OPEN"
+    assert cb_test.current_state == "open", "CB should be OPEN after failure in HALF_OPEN"
     assert mock_service.call_count == 2
 
     with pytest.raises(CircuitBreakerOpenError): # Verify it's truly OPEN
@@ -206,7 +206,7 @@ def test_sync_successful_call_resets_failures():
     result = protected_sync_call()
     assert result == "success"
     assert cb_test.failure_count == 0, "Failure count should reset"
-    assert cb_test.current_state == "CLOSED"
+    assert cb_test.current_state == "closed"
     assert mock_service.call_count == 2
 
 # Test that function name is correctly captured for unnamed (lambda) functions
@@ -219,7 +219,7 @@ def test_lambda_function_name_in_error():
     with pytest.raises(ValueError, match="Lambda error"):
         protected_lambda()
     
-    assert cb_lambda_test.current_state == "OPEN"
+    assert cb_lambda_test.current_state == "open"
     with pytest.raises(CircuitBreakerOpenError, match=r"\[CircuitBreakerOpen\] Open circuit for function '<lambda>'\."):
         protected_lambda()
 
